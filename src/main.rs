@@ -1,3 +1,6 @@
+extern crate anyhow;
+extern crate clap;
+
 use std::fs::{File};
 use std::io::Write;
 use anyhow::{Result};
@@ -9,7 +12,7 @@ use clap::Parser;
 #[group(required = false, multiple = false)]
 pub struct Cli {
     /// The pattern to look for
-    #[arg(required = false, short = 'l', long = "list", value_parser, value_delimiter = ' ', num_args = 0..)]
+    #[arg(required = true, short = 'l', long = "list", value_parser, value_delimiter = ' ', num_args = 0..)]
     pub list: Vec<String>,
 
     // TODO - need to implement multi arg for output /dir/file naming
