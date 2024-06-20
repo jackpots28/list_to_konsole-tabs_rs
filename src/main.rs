@@ -6,36 +6,56 @@ use std::io::Write;
 use anyhow::{Result};
 use clap::Parser;
 
+
 /// Convert CLI list of hostnames to Konsole tab-from-file list
 #[derive(Parser, Debug)]
 // #[command(version, about, long_about = None)]
-#[group(required = false, multiple = false)]
+#[group(multiple = true)]
 pub struct Cli {
-    /// The pattern to look for
-    #[arg(required = true, short = 'l', long = "list", value_parser, value_delimiter = ' ', num_args = 0..)]
+
+    /// Space delimited list of hostnames
+    #[arg(short = 'l',
+        long = "list",
+        value_parser,
+        value_delimiter = ',',
+        required_unless_present = "input",
+        num_args = 0..)]
     pub list: Vec<String>,
 
-    // TODO - need to implement multi arg for output /dir/file naming
-    // The path to the file to read
-    // #[arg(required = false, short = 'f', long = "file")]
-    // pub file: std::path::PathBuf,
+    // TODO - fix the following to allow either required input as stdin or file
+    // #[arg(short = 'i',
+    //     long = "input",
+    //     required_unless_present = "list",)]
+    // pub input: std::path::PathBuf,
+
+    /// The output path with filename (default is: ${pwd}/default_output.tabs)
+    #[arg(required = false,
+        short = 'f',
+        long = "file",
+        default_value = "./default_output.tabs",)]
+    pub file: std::path::PathBuf,
+
+    // pub test_input: Box<dyn std::io::Read + 'static>
+
 
     // TODO - create arg that depends on if cli "list" is passed to instead take newline delim file
 }
 
+
 fn main() -> Result<()> {
     let args = Cli::parse();
-    let output_path_string: &str = "/tmp/output_tabs.txt";
+    let output_path_file: std::path::PathBuf = args.file;
 
     let mut out_file = File::create(
-        &format!("{}", output_path_string))
+        &format!("{}", output_path_file.display()))
         .expect(
-            &format!("Creation of {} file failed", output_path_string));
+            &format!("Creation of {} file failed", output_path_file.display()));
 
     for item in args.list {
         println!("title: {item};; command: ssh {item}");
         write!(out_file, "title: {item};; command: ssh {item}\n").expect("Writing to output file failed");
     }
+
 
     // let some_other_test_string: &str = "TEST";
     // let test_string: String = format!("Something\n{}\n", some_other_test_string);
