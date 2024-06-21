@@ -1,9 +1,9 @@
 extern crate anyhow;
 extern crate clap;
 
-use std::fs::{File};
-use std::io::Write;
-use anyhow::{Result};
+use std::io::prelude::*;
+use std::fs::File;
+use anyhow::Result;
 use clap::Parser;
 
 
@@ -13,57 +13,70 @@ use clap::Parser;
 #[group(multiple = true)]
 pub struct Cli {
 
+    #[clap(flatten)]
+    group: Required,
+
+    /// The output path with filename (default is: ${pwd}/default_output.tabs)
+    #[arg(required = false,
+        short = 'o',
+        long = "output-file",
+        default_value = "./default_output.tabs",)]
+    pub file: std::path::PathBuf,
+
+}
+
+// Argument group for mutually exclusive flags
+#[derive(Debug, clap::Args)]
+#[group(required = true, multiple = false)]
+pub struct Required {
+
     /// Space delimited list of hostnames
     #[arg(short = 'l',
         long = "list",
         value_parser,
-        value_delimiter = ',',
-        required_unless_present = "input",
+        value_delimiter = ' ',
         num_args = 0..)]
-    pub list: Vec<String>,
+    pub list: Option<Vec<String>>,
 
-    // TODO - fix the following to allow either required input as stdin or file
-    // #[arg(short = 'i',
-    //     long = "input",
-    //     required_unless_present = "list",)]
-    // pub input: std::path::PathBuf,
+    /// Input file as newline delimited text file
+    #[arg(short = 'i',
+        long = "input-file",)]
+    pub input: Option<std::path::PathBuf>,
+}
 
-    /// The output path with filename (default is: ${pwd}/default_output.tabs)
-    #[arg(required = false,
-        short = 'f',
-        long = "file",
-        default_value = "./default_output.tabs",)]
-    pub file: std::path::PathBuf,
-
-    // pub test_input: Box<dyn std::io::Read + 'static>
-
-
-    // TODO - create arg that depends on if cli "list" is passed to instead take newline delim file
+// File parser for newline ingestion list file
+fn read_lines_to_vec(filename: impl AsRef<std::path::Path>) -> Vec<String> {
+    let ingestion_file = std::fs::File::open(filename).expect("File does not exist.");
+    let buffer = std::io::BufReader::new(ingestion_file);
+    buffer.lines().map(|line| line.expect("Could not parse line.")).collect()
 }
 
 
 fn main() -> Result<()> {
-    let args = Cli::parse();
+    let args:Cli = Cli::parse();
     let output_path_file: std::path::PathBuf = args.file;
+    let input_path_file: Option<std::path::PathBuf> = args.group.input;
+    let input_cli_stdin: Option<Vec<String>> = args.group.list;
+
 
     let mut out_file = File::create(
         &format!("{}", output_path_file.display()))
         .expect(
             &format!("Creation of {} file failed", output_path_file.display()));
 
-    for item in args.list {
-        println!("title: {item};; command: ssh {item}");
-        write!(out_file, "title: {item};; command: ssh {item}\n").expect("Writing to output file failed");
+
+    if input_path_file.is_none() {
+        for item in input_cli_stdin.unwrap() {
+            println!("title: {item};; command: ssh {item}");
+            write!(out_file, "title: {item};; command: ssh {item}\n").expect(&format!("Writing to output file {:?} failed.", out_file));
+        }
     }
-
-
-    // let some_other_test_string: &str = "TEST";
-    // let test_string: String = format!("Something\n{}\n", some_other_test_string);
-    //
-    // std::fs::write("/tmp/test.file", test_string).expect("Unable to write to file.");
-    //
-    // let output_content = std::fs::read_to_string("/tmp/test.file")
-    //     .with_context(|| format!("Could not read file '{}'", "/tmp/test.file"))?;
+    else {
+        for item in read_lines_to_vec(input_path_file.unwrap().into_os_string()){
+            println!("title: {item};; command: ssh {item}");
+            write!(out_file, "title: {item};; command: ssh {item}\n").expect(&format!("Writing to output file {:?} failed.", out_file))
+        }
+    }
 
     Ok(())
 }
