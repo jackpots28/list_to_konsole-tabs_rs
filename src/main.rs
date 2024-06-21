@@ -7,7 +7,7 @@ use anyhow::Result;
 use clap::Parser;
 
 
-/// Convert CLI list of hostnames to Konsole tab-from-file list
+/// Convert CLI list or newline file of hostnames to Konsole tab-from-file list
 #[derive(Parser, Debug)]
 // #[command(version, about, long_about = None)]
 #[group(multiple = true)]
@@ -16,7 +16,7 @@ pub struct Cli {
     #[clap(flatten)]
     group: Required,
 
-    /// The output path with filename (default is: ${pwd}/default_output.tabs)
+    /// The output path with filename
     #[arg(required = false,
         short = 'o',
         long = "output-file",

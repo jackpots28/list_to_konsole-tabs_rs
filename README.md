@@ -21,26 +21,40 @@ cp -r target/release/list-to-tabs /usr/local/sbin/list-to-tabs
 
 ## Usage/Examples
 
-```
+```bash
 list-to-tabs --help
 ```
->Convert CLI list of hostnames to Konsole tab-from-file list
->
->Usage: list-to-tabs --list [<LIST>...]
->
->Options:
->  -l, --list [<LIST>...]  The pattern to look for
->  -h, --help              Print help
+
+```
+Convert CLI list or newline file of hostnames to Konsole tab-from-file list
+
+Usage: list-to-tabs [OPTIONS] <--list [<LIST>...]|--input-file <INPUT>>
+
+Options:
+  -l, --list [<LIST>...]    Space delimited list of hostnames
+  -i, --input-file <INPUT>  Input file as newline delimited text file
+  -o, --output-file <FILE>  The output path with filename [default: ./default_output.tabs]
+  -h, --help                Print help
+
+```
 
 ---
 
 ```bash
-list-to-tabs --list host_name1 host_name2 host_name3
+list-to-tabs -o sample_output_file.tabs --list host_name1 host_name2 host_name3
 ```
+or
 ```bash
-cat /tmp/output_tabs.txt
+printf "host_name1\nhost_name2\nhost_name3\n" > server.list
+list-to-tabs -o sample_output_file.tabs --input-file server.list
 ```
->Outputs tab file to /tmp/output_tabs.txt
+
+
+```bash
+cat sample_output_file.tabs
+```
+
+>Outputs tab file to ./sample_output_file.tabs
 >
 >Contents of file are in the format of:\
 >title: host_name1;; command: ssh host_name1\
@@ -48,7 +62,7 @@ cat /tmp/output_tabs.txt
 >title: host_name3;; command: ssh host_name3
 
 ```bash
-konsole --tabs-from-file /tmp/output_tabs.txt
+konsole --tabs-from-file sample_output_file.tabs
 ```
 
 
