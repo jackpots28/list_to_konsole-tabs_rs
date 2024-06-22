@@ -3,6 +3,7 @@ name = "list-to-tabs"
 version = "1.0.0"
 authors = ["Jack Sims jack.m.sims@protonmail.com"]
 license = "Apache-2.0"
+description = "Cli tool for generating Konsole --tabs-from-file lists"
 readme = "README.md"
 homepage = "https://github.com/jackpots28/list_to_konsole-tabs_rs"
 repository = "https://github.com/jackpots28/list_to_konsole-tabs_rs"
