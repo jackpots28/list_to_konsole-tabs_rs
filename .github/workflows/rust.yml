@@ -30,10 +30,10 @@ jobs:
           # Commit changes so cargo doesn't complain about dirty repo
           git commit -m "Deploy changes."
           # Package crate to ensure it works without issue
-          cargo package
+          cargo package --allow-dirty
       - name: Cargo Login
         env:
           CRATES_IO_DEPLOY_TOKEN: ${{ secrets.CRATES_IO_DEPLOY_TOKEN }}
         run: cargo login "$CRATES_IO_DEPLOY_TOKEN"
       - name: Publish
-        run: cargo publish
+        run: cargo publish --allow-dirty
