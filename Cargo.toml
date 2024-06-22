@@ -1,6 +1,13 @@
 [package]
 name = "list-to-tabs"
-version = "0.1.0"
+version = "1.0.0"
+authors = ["Jack Sims jack.m.sims@protonmail.com"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/jackpots28/list_to_konsole-tabs_rs"
+repository = "https://github.com/jackpots28/list_to_konsole-tabs_rs"
+keywords = ["cli", "konsole", "utility"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.86"
